@@ -15,7 +15,7 @@ const createMeeting = asyncHandler(async (req, res) => {
         host: req.user._id,
         participants: [
             {
-                user: userId,
+                user: req.user._id,
                 micAllowed: true, // Default permissions for admin
                 cameraAllowed: true,
             },
@@ -24,6 +24,7 @@ const createMeeting = asyncHandler(async (req, res) => {
         description,
         scheduledTime,
         meetingCode,
+        meetingType,
         meetingLink: `${process.env.FRONTEND_URL}/meet/${uuidv4()}`,
     });
 
@@ -59,11 +60,11 @@ const deleteMeeting = asyncHandler(async (req, res) => {
         throw new ApiError(404, "Meeting not found");
     }
 
-    if (meeting.host.toString() !== req.user._id) {
+    if (meeting.host.toString() !== (req.user._id).toString()) {
         throw new ApiError(403, "You can only delete meetings you have created");
     }
 
-    const deletedMeeting = await meeting.remove();
+    const deletedMeeting = await Meeting.deleteOne({ _id: meetingId });
 
     return res
         .status(200)
@@ -85,7 +86,7 @@ const joinMeeting = asyncHandler(async (req, res) => {
     }
 
     // Check if user is already a participant
-    const isAlreadyParticipant = meeting.participants.some(p => p.user.toString() === userId);
+    const isAlreadyParticipant = meeting.participants.some(p => p.user.toString() === participantId);
     if (isAlreadyParticipant) {
         return res.status(400).json({ message: 'You are already part of this meeting' });
     }
