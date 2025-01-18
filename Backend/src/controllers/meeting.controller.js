@@ -7,6 +7,8 @@ import { ApiResponse } from "../utils/ApiResponse.js";
 const createMeeting = asyncHandler(async (req, res) => {
     const { title, description, scheduledTime, meetingType, meetingCode } = req.body;
 
+    console.log("Creating meeting");
+
     if (!['one-to-one', 'group'].includes(meetingType)) {
         throw new ApiError(400, "Invalid meeting type");
     }
@@ -78,17 +80,17 @@ const joinMeeting = asyncHandler(async (req, res) => {
 
     const meeting = await Meeting.findOne({ meetingLink });
     if (!meeting) {
-        throw new ApiError(404, "Meeting not found");
+        console.log("Not found");
+        return res.status(404).json(new ApiResponse(404, [], "Meeting not found"));
     }
 
     if (meeting.meetingCode !== meetingCode) {
-        throw new ApiError(400, "Invalid meeting code");
+        return res.status(400).json(new ApiResponse(400, [], "Invalid meeting code"));
     }
 
-    // Check if user is already a participant
-    const isAlreadyParticipant = meeting.participants.some(p => p.user.toString() === participantId);
-    if (isAlreadyParticipant) {
-        return res.status(400).json({ message: 'You are already part of this meeting' });
+    // Check if the user is already a participant
+    if (meeting.participants.some(participant => participant.user.toString() === participantId.toString())) {
+        return res.status(200).json(new ApiResponse(200, meeting, "You are already part of this meeting."));
     }
 
     // add participant
@@ -100,7 +102,7 @@ const joinMeeting = asyncHandler(async (req, res) => {
 
     await meeting.save();
 
-    return res.status(200).json(new ApiResponse(200, meeting, "Successfully joined the meeting"));
+    return res.status(200).json(new ApiResponse(200, meeting, "Successfully joined the meeting."));
 
 });
 

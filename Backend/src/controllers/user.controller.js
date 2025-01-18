@@ -90,6 +90,7 @@ const loginUser = asyncHandler(async (req, res) => {
         secure: true
     }
 
+    console.log(loggedInUser);
     return res
         .status(200)
         .cookie("accessToken", accessToken, options)
@@ -194,6 +195,8 @@ const updateUser = asyncHandler(async (req, res) => {
         .json(new ApiResponse(200, user, "User updated successfully"));
 
 });
+
+
 
 export {
     registerUser,

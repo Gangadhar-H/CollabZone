@@ -14,4 +14,5 @@ router.route("/refresh-token").post(refreshAccessToken);
 router.route("/getUser").get(verifyJWT, getCurrentUser);
 router.route("/updateUser").patch(verifyJWT, updateUser);
 
+
 export default router;
