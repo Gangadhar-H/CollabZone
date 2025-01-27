@@ -35,7 +35,7 @@ const Dashboard = () => {
                         Create Meeting
                     </Link>
                     <Link
-                        to="/join-meeting"
+                        to="/meeting/:meetingId"
                         className="py-2 px-4 text-center bg-green-500 text-white font-semibold rounded-md hover:bg-green-600"
                     >
                         Join Meeting

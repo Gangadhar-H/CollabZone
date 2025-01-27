@@ -15,13 +15,6 @@ const createMeeting = asyncHandler(async (req, res) => {
 
     const meeting = await Meeting.create({
         host: req.user._id,
-        participants: [
-            {
-                user: req.user._id,
-                micAllowed: true, // Default permissions for admin
-                cameraAllowed: true,
-            },
-        ],
         title,
         description,
         scheduledTime,

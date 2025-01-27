@@ -12,10 +12,12 @@ const meetingSchema = new Schema(
                 user: {
                     type: Schema.Types.ObjectId,
                     ref: 'User',
+                    unique: true,
                 },
                 micAllowed: { type: Boolean, default: false },
                 cameraAllowed: { type: Boolean, default: false },
             },
+
         ],
         title: {
             type: String,
@@ -23,11 +25,6 @@ const meetingSchema = new Schema(
         },
         description: {
             type: String,
-        },
-        scheduledTime: {
-            type: Date,
-            default: Date.now(),
-            required: true
         },
         meetingLink: {
             type: String,
@@ -40,7 +37,6 @@ const meetingSchema = new Schema(
             type: Boolean,
             default: true
         },
-        meetingType: { type: String, enum: ['one-to-one', 'group'], required: true },
 
     },
     { timestamps: true }

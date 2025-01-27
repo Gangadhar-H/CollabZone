@@ -7,8 +7,6 @@ function CreateMeeting() {
 
     const [title, setTitle] = useState("");
     const [description, setDescription] = useState("");
-    const [meetingType, setMeetingType] = useState("one-to-one");
-    const [scheduledTime, setScheduledTime] = useState("");
     const [meetingCode, setMeetingCode] = useState("");
     const [error, setError] = useState("");
     const navigate = useNavigate();
@@ -22,8 +20,6 @@ function CreateMeeting() {
                 {
                     title,
                     description,
-                    meetingType,
-                    scheduledTime,
                     meetingCode,
                 },
                 {
@@ -69,26 +65,6 @@ function CreateMeeting() {
                             className="w-full px-3 py-2 border rounded-md"
                             required
                         ></textarea>
-                    </div>
-                    <div>
-                        <label className="block font-semibold mb-1">Meeting Type</label>
-                        <select
-                            value={meetingType}
-                            onChange={(e) => setMeetingType(e.target.value)}
-                            className="w-full px-3 py-2 border rounded-md"
-                        >
-                            <option value="one-to-one">One-to-One</option>
-                            <option value="group">Group</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label className="block font-semibold mb-1">Scheduled Time</label>
-                        <input
-                            type="datetime-local"
-                            value={scheduledTime}
-                            onChange={(e) => setScheduledTime(e.target.value)}
-                            className="w-full px-3 py-2 border rounded-md"
-                        />
                     </div>
                     <div>
                         <label className="block font-semibold mb-1">Meeting Code</label>

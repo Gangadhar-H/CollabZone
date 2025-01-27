@@ -7,6 +7,7 @@ import './App.css'
 import Dashboard from './pages/DashBoard';
 import CreateMeeting from './pages/CreateMeeting';
 import JoinMeeting from './pages/JoinMeeting';
+import MeetingRoom from './pages/MeetingRoom';
 
 function App() {
 
@@ -17,7 +18,8 @@ function App() {
         <Route path='/login' element={<LoginPage />}></Route>
         <Route path='/dashboard' element={<Dashboard />}></Route>
         <Route path='/create-meeting' element={<CreateMeeting />}></Route>
-        <Route path='/join-meeting' element={<JoinMeeting />}></Route>
+        <Route path='/join-meeting' element={<MeetingRoom />}></Route>
+        <Route path="/meeting/:meetingId" element={<MeetingRoom />} />
       </Routes>
     </Router>
   );

@@ -33,10 +33,12 @@ function JoinMeeting() {
             // Check the backend response
             if (response.data.message === "You are already part of this meeting.") {
                 setSuccess(response.data.message);
+                console.log(response.data.data._id);
+                navigate(`/meeting/${response.data.data._id}`);
             } else if (response.data.message === "Successfully joined the meeting.") {
                 setSuccess(response.data.message);
                 // Uncomment below if you want to redirect to the meeting page
-                // navigate(`/meeting/${response.data.meeting._id}`);
+                navigate(`/meeting/${response.data.data._id}`);
             } else if (response.data.message === "Meeting not found") {
                 setError(response.data.message);
             } else if (response.data.message === "Invalid meeting code") {
