@@ -1,67 +1,72 @@
-import { Meeting } from "../models/meeting.model.js";
-
-const rooms = {};
+import { Meeting } from "../models/meeting.model.js"
 
 const connectToSocket = (io) => {
-    io.on("connection", (socket) => {
-        console.log(`User connected: ${socket.id}`);
+    const rooms = new Map()
 
-        // Handle user joining a room
+    io.on("connection", (socket) => {
+        console.log(`User connected: ${socket.id}`)
+
         socket.on("join-room", async ({ meetingLink, meetingCode, userId }, callback) => {
             try {
-                // Fetch the meeting from the database
-                console.log(meetingLink);
-                const meeting = await Meeting.findOne({ meetingLink });
+                const meeting = await Meeting.findOne({ meetingLink })
 
-                console.log("meeting is", meeting);
                 if (!meeting) {
-                    if (callback) callback({ error: "Meeting not found." });
-                    return;
+                    if (callback) callback({ error: "Meeting not found." })
+                    return
                 }
 
-                // Validate the meeting code
                 if (meeting.meetingCode !== meetingCode) {
-                    if (callback) callback({ error: "Invalid meeting code." });
-                    return;
+                    if (callback) callback({ error: "Invalid meeting code." })
+                    return
                 }
 
-                // Add user to the room
-                socket.join(meeting._id);
+                socket.join(meeting._id.toString())
+                if (!rooms.has(meeting._id.toString())) {
+                    rooms.set(meeting._id.toString(), new Set())
+                }
+                rooms.get(meeting._id.toString()).add(socket.id)
 
-                console.log(`User ${socket.id} joined room: ${meetingLink}`);
+                socket.to(meeting._id.toString()).emit("user-connected", socket.id)
 
-                // Optionally emit updated participant list
-                // const participants = Array.from(io.sockets.adapter.rooms.get(meeting._id) || []);
-                // console.log(participants);
-                io.to(meeting._id).emit("participants-update", meeting.participants);
+                io.to(meeting._id.toString()).emit(
+                    "participants-update",
+                    Array.from(rooms.get(meeting._id.toString())).map((id) => ({ user: { _id: id } })),
+                )
 
-                // Send success response via callback
-                if (callback) callback({ success: true, roomId: meetingLink });
+                if (callback) callback({ success: true, roomId: meeting._id.toString() })
             } catch (error) {
-                console.error("Error in join-room:", error);
-                if (callback) callback({ error: "An error occurred. Please try again." });
+                console.error("Error in join-room:", error)
+                if (callback) callback({ error: "An error occurred. Please try again." })
             }
-        });
+        })
 
+        socket.on("offer", ({ to, offer }) => {
+            socket.to(to).emit("offer", { from: socket.id, offer })
+        })
 
-        // Handle user disconnecting
+        socket.on("answer", ({ to, answer }) => {
+            socket.to(to).emit("answer", { from: socket.id, answer })
+        })
+
+        socket.on("ice-candidate", ({ to, candidate }) => {
+            socket.to(to).emit("ice-candidate", { from: socket.id, candidate })
+        })
+
         socket.on("disconnect", () => {
-            console.log(`User disconnected: ${socket.id}`);
-
-            // Remove the user from all rooms
-            for (const room in rooms) {
-                rooms[room] = rooms[room].filter((id) => id !== socket.id);
-
-                // Notify the room of the updated participant list
-                io.to(room).emit("participant-list", rooms[room]);
-
-                // If the room is empty, delete it
-                if (rooms[room].length === 0) {
-                    delete rooms[room];
+            console.log(`User disconnected: ${socket.id}`)
+            rooms.forEach((participants, roomId) => {
+                if (participants.has(socket.id)) {
+                    participants.delete(socket.id)
+                    socket.to(roomId).emit("user-disconnected", socket.id)
+                    io.to(roomId).emit(
+                        "participants-update",
+                        Array.from(participants).map((id) => ({ user: { _id: id } })),
+                    )
                 }
-            }
-        });
-    });
-};
+            })
+        })
+    })
+}
 
-export default connectToSocket;
+export default connectToSocket
+
